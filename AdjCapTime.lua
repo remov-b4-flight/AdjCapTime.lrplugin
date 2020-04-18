@@ -7,22 +7,28 @@ local LrApplication = import 'LrApplication'
 local LrTasks = import 'LrTasks'
 local LrDate = import 'LrDate'
 local LrLogger = import 'LrLogger'
-AJLogger = LrLogger('AdjCapTime')
-AJLogger:enable('logfile')
+Logger = LrLogger('AdjCapTime')
+Logger:enable('logfile')
 local CurrentCatalog = LrApplication.activeCatalog()
 local interval = 10
 
+function getIPTCDateTime(time)
+	return LrDate.timeToUserFormat(time,'%Y-%m-%dT%H:%M:%S',false)
+end
+
 LrTasks.startAsyncTask( function ()
 	local TargetPhoto = CurrentCatalog:getTargetPhoto()
-	local TargetTime = TargetPhoto:getRawMetadata('dateTime')
+	local TargetTime = TargetPhoto:getRawMetadata('dateTimeOriginal')
+	local IPTCDateTime = getIPTCDateTime(TargetTime)
+	Logger:info('Origin='.. IPTCDateTime)
 	
 	local SelectedPhotos = CurrentCatalog:getTargetPhotos()
 
 	CurrentCatalog:withWriteAccessDo('Set Capture Time',function()
 		for i,PhotoIt in ipairs(SelectedPhotos) do
-			AJLogger:info(TargetTime)
 			if TargetPhoto.localIdentifier ~= PhotoIt.localIdentifier then
-				IPTCDateTime = LrDate.timeToUserFormat(TargetTime,'%Y-%m-%dT%H:%M:%S',false)
+				IPTCDateTime = getIPTCDateTime(TargetTime)
+				Logger:info(TargetTime ..'='.. IPTCDateTime)
 				PhotoIt:setRawMetadata('dateCreated',IPTCDateTime)
 			end
 			TargetTime = TargetTime + interval
