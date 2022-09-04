@@ -11,9 +11,10 @@ local LrProgress = import 'LrProgressScope'
 local LrLogger = import 'LrLogger'
 Logger = LrLogger('AdjCapTime')
 Logger:enable('logfile')
+
 local CurrentCatalog = LrApplication.activeCatalog()
 local interval = 10
-local TagHead = 'wsl exiftool'
+local TagHead = 'sh exiftool'
 local TagDateOpt = ' -allDates='
 local TagCapOpt = ' -Caption-Abstruct='
 
@@ -23,17 +24,6 @@ end
 
 function getExifToolDateTime(time)
 	return LrDate.timeToUserFormat(time,'%Y:%m:%d %H:%M:%S',false)
-end
-
-function getWSLPath(path)
-	local temp = string.gsub(path,'%a:\\',
-	function (s)
-		local t = string.gsub(s, ':', '', 1)
-		return '/mnt/'.. string.lower(t) 
-	end 
-	,1)
-	temp = string.gsub(temp, '\\', '/')
-	return temp
 end
 
 LrTasks.startAsyncTask( function ()
@@ -63,10 +53,9 @@ LrTasks.startAsyncTask( function ()
 		for i,PhotoIt in ipairs(SelectedPhotos) do
 			if TargetPhoto.localIdentifier ~= PhotoIt.localIdentifier then
 				local FilePath = PhotoIt:getRawMetadata('path')
-				local WSLPath = getWSLPath(FilePath)
 				local DateTime = getExifToolDateTime(TargetTime)
 				local caption = PhotoIt:getFormattedMetadata('caption')
-				local CommandLine = TagHead .. TagCapOpt ..'\"'.. caption ..'\"'.. TagDateOpt ..'\"'.. DateTime ..'\" '.. WSLPath
+				local CommandLine = TagHead .. TagCapOpt ..'\"'.. caption ..'\"'.. TagDateOpt ..'\"'.. DateTime ..'\" '.. FilePath
 				Logger:info(CommandLine)
 				LrTasks.execute(CommandLine)
 			end
