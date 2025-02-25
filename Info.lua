@@ -8,7 +8,7 @@ return {
 
 	LrSdkVersion = 3.0,
 
-	LrToolkitIdentifier = 'nu.mine.ruffles.adjcaptime',
+	LrToolkitIdentifier = 'cx.ath.remov-b4-flight.adjcaptime',
 	LrPluginName = 'AdjCapTime',
 	LrPluginInfoUrl='https://twitter.com/remov_b4_flight',
 	LrLibraryMenuItems = { 
